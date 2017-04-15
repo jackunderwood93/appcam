@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
+    package="com.appcam.sdk">
+
+    <application android:allowBackup="true"
+        android:supportsRtl="true">
+
+        <service
+            android:name=".UploadIntentService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            />
+
+    </application>
+
+</manifest>
