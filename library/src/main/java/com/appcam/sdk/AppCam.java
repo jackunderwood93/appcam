@@ -103,7 +103,7 @@ public class AppCam {
         touchView = (ImageView) new ImageView(activity);
         touchView.setLayoutParams(new FrameLayout.LayoutParams(touchSize, touchSize));
         touchView.setImageResource(R.drawable.oval);
-//        touchView.setY(-TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, resources.getDisplayMetrics()));
+        touchView.setAlpha(0f);
         viewGroup.addView(touchView);
 
         interpolator = new AccelerateInterpolator();
@@ -315,7 +315,7 @@ public class AppCam {
 
         JobScheduler jobScheduler = (JobScheduler) activity.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.schedule(job);
-  d
+
 
         activity = null;
         mediaProjection = null;
