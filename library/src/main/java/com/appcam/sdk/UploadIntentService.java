@@ -28,9 +28,13 @@ public class UploadIntentService extends JobService {
             @Override
             public void run() {
                 String fileLocation = params.getExtras().getString("file_location");
-                uploadFile(fileLocation);
+                uploadFile(params, fileLocation);
             }
         }).start();
+
+
+
+        Log.e("LOG", "Start Job");
 
         return true;
     }
@@ -41,7 +45,7 @@ public class UploadIntentService extends JobService {
     }
 
 
-    public static void uploadFile(String fileName) {
+    public void uploadFile(JobParameters parameters, String fileName) {
 
 
         HttpURLConnection conn = null;
@@ -55,9 +59,6 @@ public class UploadIntentService extends JobService {
         File sourceFile = new File(fileName);
 
         if (!sourceFile.isFile()) {
-
-
-            Log.e("LOG", "NOT A FILE!");
             return;
 
         } else {
@@ -119,7 +120,11 @@ public class UploadIntentService extends JobService {
 
                 if (serverResponseCode == 200) {
 
+                    new File(fileName).delete();
                     Log.e("LOG", "Successfully uploaded!");
+
+                    jobFinished(parameters, false);
+
                 }
 
                 //close the streams //
