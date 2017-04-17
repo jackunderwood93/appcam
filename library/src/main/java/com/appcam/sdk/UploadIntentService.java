@@ -1,7 +1,12 @@
 package com.appcam.sdk;
 
+import android.app.job.JobInfo;
 import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
 import android.app.job.JobService;
+import android.content.ComponentName;
+import android.content.Context;
+import android.os.PersistableBundle;
 import android.util.Log;
 
 import java.io.DataOutputStream;
@@ -10,6 +15,8 @@ import java.io.FileInputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import static com.appcam.sdk.AppCam.JOB_ID;
 
 /**
  * Created by jackunderwood on 14/04/2017.
@@ -24,17 +31,33 @@ public class UploadIntentService extends JobService {
     @Override
     public boolean onStartJob(final JobParameters params) {
 
+        Log.e("LOG", "Start Job");
+
+        // Get upload target from bundle
+        final String fileLocation = params.getExtras().getString("file_location");
+
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putString("file_location", fileLocation);
+
+        // Reschedule job to retry no less than every 5 minutes if this one fails.
+        JobInfo job = new JobInfo.Builder(JOB_ID, new ComponentName(getApplicationContext(), UploadIntentService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                .setRequiresCharging(true)
+                .setExtras(bundle)
+                .setMinimumLatency(300000)
+                .build();
+
+        JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.schedule(job);
+
+        // Start upload
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String fileLocation = params.getExtras().getString("file_location");
                 uploadFile(params, fileLocation);
             }
         }).start();
 
-
-
-        Log.e("LOG", "Start Job");
 
         return true;
     }
@@ -122,6 +145,11 @@ public class UploadIntentService extends JobService {
 
                     new File(fileName).delete();
                     Log.e("LOG", "Successfully uploaded!");
+
+                    // Mark job as finished
+
+                    JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                    jobScheduler.cancel(JOB_ID);
 
                     jobFinished(parameters, false);
 
