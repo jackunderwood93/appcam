@@ -66,13 +66,15 @@ public class AppCam {
 
     private int videoWidth;
     private int videoHeight;
+    private boolean instantUpload;
 
 
-    public void init(Activity act, String key, int videoQuality) {
+    public void init(Activity act, String key, int videoQuality, boolean instantUpload) {
         activity = act;
         mediaRecorder = new MediaRecorder();
         apiKey = key;
         quality = videoQuality;
+        this.instantUpload = instantUpload;
 
         buildFileName();
         calculateSizes();
@@ -80,8 +82,8 @@ public class AppCam {
 
     }
 
-    public void init(Activity act, String key) {
-        init(act, key, QUALITY_MEDIUM);
+    public void init(Activity act, String key, boolean instantUpload) {
+        init(act, key, QUALITY_MEDIUM, instantUpload);
     }
 
 
@@ -233,15 +235,18 @@ public class AppCam {
         PersistableBundle bundle = new PersistableBundle();
         bundle.putString("file_location", fileLocation);
 
-        JobInfo job = new JobInfo.Builder(JOB_ID, new ComponentName(activity, UploadIntentService.class))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setRequiresCharging(true)
-                .setExtras(bundle)
-                .build();
+        JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(activity, UploadIntentService.class));
+        jobBuilder.setExtras(bundle);
+        jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        jobBuilder.setRequiresCharging(true);
+
+        if(instantUpload) {
+            jobBuilder.setOverrideDeadline(1000);
+        }
 
 
         JobScheduler jobScheduler = (JobScheduler) activity.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.schedule(job);
+        jobScheduler.schedule(jobBuilder.build());
 
 
         activity = null;

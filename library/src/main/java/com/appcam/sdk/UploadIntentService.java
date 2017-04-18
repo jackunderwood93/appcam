@@ -40,15 +40,13 @@ public class UploadIntentService extends JobService {
         bundle.putString("file_location", fileLocation);
 
         // Reschedule job to retry no less than every 5 minutes if this one fails.
-        JobInfo job = new JobInfo.Builder(JOB_ID, new ComponentName(getApplicationContext(), UploadIntentService.class))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setRequiresCharging(true)
-                .setExtras(bundle)
-                .setMinimumLatency(300000)
-                .build();
+        JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(getApplicationContext(), UploadIntentService.class));
+        jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        jobBuilder.setExtras(bundle);
+        jobBuilder.setMinimumLatency(300000);
 
         JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.schedule(job);
+        jobScheduler.schedule(jobBuilder.build());
 
         // Start upload
         new Thread(new Runnable() {
@@ -68,7 +66,7 @@ public class UploadIntentService extends JobService {
     }
 
 
-    public void uploadFile(JobParameters parameters, String fileName) {
+    public  void uploadFile( JobParameters parameters, String fileName) {
 
 
         HttpURLConnection conn = null;
@@ -145,8 +143,6 @@ public class UploadIntentService extends JobService {
 
                     new File(fileName).delete();
                     Log.e("LOG", "Successfully uploaded!");
-
-                    // Mark job as finished
 
                     JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
                     jobScheduler.cancel(JOB_ID);
