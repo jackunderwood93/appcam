@@ -1,6 +1,7 @@
 package com.appcam.sdk;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -17,24 +18,17 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.appcam.sdk.appstate.AppStateListener;
+import com.appcam.sdk.appstate.AppStateMonitor;
 
-import static android.R.attr.width;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by jackunderwood on 14/04/2017.
@@ -53,12 +47,11 @@ public class AppCam {
     private boolean hasStopped = false;
 
     public static final int JOB_ID = 1000119;
+    public static String APP_CAM_LOG = "AppCam";
 
     public static final int QUALITY_LOW = 1;
     public static final int QUALITY_MEDIUM = 2;
     public static final int QUALITY_HIGH = 5;
-
-    public static AppCam appCam;
 
     private ImageView touchView;
     private int touchSize;
@@ -68,28 +61,77 @@ public class AppCam {
     private int videoHeight;
     private boolean instantUpload;
 
+    private boolean hasInit = false;
 
-    public void init(Activity act, String key, int videoQuality, boolean instantUpload) {
-        activity = act;
+    private Application application;
+
+    public AppCam() {
+
+    }
+
+
+    void init(Application application, String key, int videoQuality, boolean instantUpload) {
         mediaRecorder = new MediaRecorder();
         apiKey = key;
         quality = videoQuality;
         this.instantUpload = instantUpload;
+        this.application = application;
 
-        buildFileName();
         calculateSizes();
-        startRecording();
+        setupAppState();
+
+        hasInit = true;
 
     }
 
-    public void init(Activity act, String key, boolean instantUpload) {
-        init(act, key, QUALITY_MEDIUM, instantUpload);
+    boolean hasInit() {
+        return hasInit;
     }
 
+     void attachActivity(Activity activity) {
+
+         if(application == null) {
+             return;
+         }
+
+        if(touchView != null) {
+            ((ViewGroup)touchView.getParent()).removeView(touchView);
+        }
+
+        createTouchView(activity);
+    }
+
+
+    private void setupAppState() {
+
+        if(application == null) {
+            return;
+        }
+
+        AppStateMonitor appStateMonitor = AppStateMonitor.create(application);
+        appStateMonitor.addListener(new AppStateListener() {
+            @Override
+            public void onAppDidEnterForeground() {
+
+            }
+
+            @Override
+            public void onAppDidEnterBackground() {
+                stop();
+            }
+        });
+
+        appStateMonitor.start();
+
+    }
 
     private void calculateSizes() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        if(application == null) {
+            return;
+        }
+
+        DisplayMetrics metrics = application.getApplicationContext().getResources().getDisplayMetrics();
 
         int deviceWidth = metrics.widthPixels;
         int deviceHeight = metrics.heightPixels;
@@ -116,18 +158,26 @@ public class AppCam {
 
     private void buildFileName() {
 
+        if(application == null) {
+            return;
+        }
+
         String versionName = "Unknown";
 
         try {
-            versionName = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName;
+            versionName = application.getApplicationContext().getPackageManager().getPackageInfo(application.getPackageName(), 0).versionName;
         } catch (Exception e) {
 
         }
 
-        fileLocation = activity.getFilesDir() +  "/recordings/" + apiKey + "-" + android.os.Build.MODEL + "-" + versionName + "-" + System.currentTimeMillis() + ".mp4";
+        fileLocation = application.getFilesDir() +  "/recordings/" + apiKey + "-" + android.os.Build.MODEL + "-" + versionName + "-" + System.currentTimeMillis() + ".mp4";
     }
 
     private void createTouchView(Activity activity) {
+
+        if(application == null) {
+            return;
+        }
 
         Resources resources = activity.getResources();
         touchSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32, resources.getDisplayMetrics());
@@ -145,7 +195,12 @@ public class AppCam {
 
     private void prepareRecording() {
 
-        final String directory = activity.getFilesDir() + "/recordings/";
+        if(application == null) {
+            return;
+        }
+
+
+        final String directory = application.getFilesDir() + "/recordings/";
 
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             return;
@@ -156,8 +211,6 @@ public class AppCam {
         if (!folder.exists()) {
             folder.mkdir();
         }
-
-
 
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
@@ -179,8 +232,7 @@ public class AppCam {
 
     private void setupMediaProjection() {
 
-        DisplayMetrics metrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        DisplayMetrics metrics = application.getResources().getDisplayMetrics();
 
         prepareRecording();
 
@@ -191,25 +243,40 @@ public class AppCam {
 
     }
 
-    private void startRecording() {
+     void startRecording(Activity activity) {
+
+         if(application == null) {
+
+             Log.e(APP_CAM_LOG, "Tried to start recording before AppCamProvider.init() is called.");
+
+             return;
+         }
+
+         buildFileName();
+         attachActivity(activity);
+
         mediaProjectionManager = (MediaProjectionManager) activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         activity.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), 1);
     }
 
 
-    public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+     boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+
+         if(application == null) {
+             return false;
+         }
+
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
 
         if(mediaProjection != null) {
             setupMediaProjection();
-            createTouchView(activity);
             return true;
         } else {
             return false;
         }
     }
 
-    public void stop() {
+     void stop() {
 
         if(hasStopped) {
             return;
@@ -235,7 +302,7 @@ public class AppCam {
         PersistableBundle bundle = new PersistableBundle();
         bundle.putString("file_location", fileLocation);
 
-        JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(activity, UploadIntentService.class));
+        JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(application, UploadIntentService.class));
         jobBuilder.setExtras(bundle);
         jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
         jobBuilder.setRequiresCharging(true);
@@ -245,23 +312,30 @@ public class AppCam {
         }
 
 
-        JobScheduler jobScheduler = (JobScheduler) activity.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobScheduler jobScheduler = (JobScheduler) application.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.schedule(jobBuilder.build());
+
+         Log.i(APP_CAM_LOG, "File saved, upload scheduled");
 
 
         activity = null;
         mediaProjection = null;
         mediaProjectionManager = null;
         mediaRecorder = null;
-
         hasStopped = true;
     }
 
-    public void dispatchTouchEvent(MotionEvent ev) {
+     void dispatchTouchEvent(MotionEvent ev) {
+
+         if(application == null) {
+             return;
+         }
 
         if(touchView == null) {
             return;
         }
+
+
 
         touchView.setTranslationX(ev.getX() - touchSize/2);
         touchView.setTranslationY(ev.getY() - touchSize/2);

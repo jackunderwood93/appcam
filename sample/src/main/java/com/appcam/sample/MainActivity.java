@@ -1,43 +1,42 @@
 package com.appcam.sample;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
 import com.appcam.sdk.AppCam;
+import com.appcam.sdk.AppCamProvider;
 
 public class MainActivity extends AppCompatActivity {
-
-    private AppCam appCam;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        appCam = new AppCam();
-        appCam.init(this, "sNBS64ht6ePHDhnKKiGQHh8uLZ52", AppCam.QUALITY_MEDIUM, true);
+        AppCamProvider.startRecording(this);
+
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onResume() {
+        super.onResume();
 
-        appCam.stop();
+        AppCamProvider.attachActivity(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (!appCam.handleActivityResult(requestCode, resultCode, data)) {
+        if (AppCamProvider.handleActivityResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        appCam.dispatchTouchEvent(ev);
+        AppCamProvider.dispatchTouchEvent(ev);
         return super.dispatchTouchEvent(ev);
     }
 }
