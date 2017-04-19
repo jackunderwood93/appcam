@@ -77,13 +77,18 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
         calculateSizes();
         setupAppState();
+        checkForVideos();
 
         hasInit = true;
 
     }
 
-    boolean hasInit() {
-        return hasInit;
+    private void checkForVideos() {
+        File recordingDir = new File(application.getFilesDir() +  "/recordings/");
+
+        if(recordingDir.listFiles().length > 0) {
+            scheduleUploadJob();
+        }
     }
 
      void attachActivity(Activity activity) {
@@ -307,27 +312,31 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
         }
 
+        scheduleUploadJob();
 
 
 
-        PersistableBundle bundle = new PersistableBundle();
-        bundle.putString("file_location", fileLocation);
 
-        JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(application, UploadIntentService.class));
-        jobBuilder.setExtras(bundle);
-        jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
-        jobBuilder.setRequiresCharging(true);
+     }
 
-        if(instantUpload) {
-            jobBuilder.setOverrideDeadline(1000);
-        }
+     private void scheduleUploadJob() {
+         PersistableBundle bundle = new PersistableBundle();
+         bundle.putString("file_location", fileLocation);
+
+         JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(application, UploadIntentService.class));
+         jobBuilder.setExtras(bundle);
+         jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+         jobBuilder.setRequiresCharging(true);
+
+         if(instantUpload) {
+             jobBuilder.setOverrideDeadline(1000);
+         }
 
 
-        JobScheduler jobScheduler = (JobScheduler) application.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.schedule(jobBuilder.build());
+         JobScheduler jobScheduler = (JobScheduler) application.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+         jobScheduler.schedule(jobBuilder.build());
 
          Log.i(APP_CAM_LOG, "File saved, upload scheduled");
-
      }
 
      void dispatchTouchEvent(MotionEvent ev) {
