@@ -252,6 +252,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
          if(isRecording) {
              Log.e(APP_CAM_LOG, "AppCam is already recording.");
+             return;
          }
 
          buildFileName();
