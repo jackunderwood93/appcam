@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 
 import com.appcam.sdk.AppCam;
-import com.appcam.sdk.AppCamProvider;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppCamProvider.startRecording(this);
+        AppCam.startRecording(this);
 
     }
 
@@ -24,19 +24,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        AppCamProvider.attachActivity(this);
+        AppCam.attachActivity(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (AppCamProvider.handleActivityResult(requestCode, resultCode, data)) {
+        if (AppCam.handleActivityResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        AppCamProvider.dispatchTouchEvent(ev);
+        AppCam.dispatchTouchEvent(ev);
         return super.dispatchTouchEvent(ev);
     }
 }

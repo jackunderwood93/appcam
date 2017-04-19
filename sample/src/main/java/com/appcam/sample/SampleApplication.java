@@ -3,7 +3,7 @@ package com.appcam.sample;
 import android.app.Application;
 
 import com.appcam.sdk.AppCam;
-import com.appcam.sdk.AppCamProvider;
+
 
 /**
  * Created by jackunderwood on 18/04/2017.
@@ -15,7 +15,7 @@ public class SampleApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        AppCamProvider.init(this, "sNBS64ht6ePHDhnKKiGQHh8uLZ52", AppCam.QUALITY_MEDIUM, true);
+        AppCam.init(this, "sNBS64ht6ePHDhnKKiGQHh8uLZ52", AppCam.QUALITY_MEDIUM, true);
 
     }
 }

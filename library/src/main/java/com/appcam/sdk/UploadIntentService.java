@@ -16,8 +16,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static com.appcam.sdk.AppCam.APP_CAM_LOG;
-import static com.appcam.sdk.AppCam.JOB_ID;
+import static com.appcam.sdk.AppCamInternals.APP_CAM_LOG;
+import static com.appcam.sdk.AppCamInternals.JOB_ID;
+
 
 /**
  * Created by jackunderwood on 14/04/2017.
@@ -33,7 +34,7 @@ public class UploadIntentService extends JobService {
     public boolean onStartJob(final JobParameters params) {
 
 
-        Log.e(APP_CAM_LOG, "Upload job started");
+        Log.i(APP_CAM_LOG, "Upload job started");
 
         // Get upload target from bundle
         final String fileLocation = params.getExtras().getString("file_location");
@@ -82,6 +83,7 @@ public class UploadIntentService extends JobService {
 
         File recordingFolder = new File(context.getFilesDir() + "/recordings/");
 
+        Log.e(APP_CAM_LOG, "Found " + recordingFolder.listFiles().length + " videos to upload.");
         for (File sourceFile : recordingFolder.listFiles()) {
 
             if (!sourceFile.isFile()) {
@@ -141,9 +143,7 @@ public class UploadIntentService extends JobService {
 
 
                     if (serverResponseCode == 200) {
-
                         Log.e(APP_CAM_LOG, "Successfully uploaded: " + sourceFile.getName());
-
                         sourceFile.delete();
                     } else {
                         Log.e(APP_CAM_LOG, "Server returned error: " + serverResponseCode + ". " + conn.getResponseMessage());
