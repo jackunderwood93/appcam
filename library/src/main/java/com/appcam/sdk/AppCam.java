@@ -49,7 +49,7 @@ public class AppCam {
         getInstance().dispatchTouchEvent(event);
     }
 
-    public static boolean handleActivityResult(int requestCode, int resultCode, Intent intent) {
-        return getInstance().handleActivityResult(requestCode, resultCode, intent);
+    public static boolean onActivityResult(int requestCode, int resultCode, Intent intent) {
+        return getInstance().onActivityResult(requestCode, resultCode, intent);
     }
 }

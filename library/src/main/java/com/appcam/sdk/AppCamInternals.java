@@ -269,7 +269,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
     }
 
 
-     boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+     boolean onActivityResult(int requestCode, int resultCode, Intent data) {
 
          if(application == null) {
              return false;
