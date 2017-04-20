@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="32dp"
+    android:paddingRight="32dp">
+
+    <TextView
+        android:id="@+id/instructions_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"
+        android:text="Sample App would like to record your next session."
+        android:layout_centerHorizontal="true"
+        android:textSize="20dp"
+        android:textColor="#000000"
+        android:alpha="0.87"
+        android:layout_marginTop="72dp"/>
+
+    <TextView
+        android:id="@+id/instructions_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"
+        android:text="The video will stop recording when you leave the app and will be automatically uploaded the next time you connect to WiFi."
+        android:layout_marginBottom="16dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000"
+        android:textSize="16dp"
+        android:layout_below="@id/instructions_title"
+        android:layout_marginTop="56dp"
+        android:alpha="0.57"/>
+
+    <FrameLayout
+        android:id="@+id/start_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="#eeeeee"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="48dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:text="Start Recording"
+            android:textColor="#000000"
+            android:alpha="0.87"
+            android:textSize="18dp"/>
+
+    </FrameLayout>
+
+
+</RelativeLayout>

@@ -16,8 +16,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppCam.startRecording(this);
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -25,22 +23,8 @@ public class MainActivity extends AppCompatActivity {
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(i);
             }
-        },5000);
+        },500000);
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        AppCam.attachActivity(this);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (!AppCam.onActivityResult(requestCode, resultCode, data)) {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     @Override

@@ -17,7 +17,7 @@ public class AppCam {
 
     public static final int QUALITY_LOW = 1;
     public static final int QUALITY_MEDIUM = 2;
-    public static final int QUALITY_HIGH = 5;
+    public static final int QUALITY_HIGH = 4;
 
     private static AppCamInternals appCam;
 
@@ -33,8 +33,8 @@ public class AppCam {
         getInstance().init(application, key, videoQuality, instantUpload);
     }
 
-    public static void startRecording(Activity activity) {
-        getInstance().startRecording(activity);
+    public static void startRecording(Activity activity, String apiKey, int quality) {
+        getInstance().startRecording(activity, apiKey, quality);
     }
 
     public static void stopRecording() {
@@ -51,5 +51,9 @@ public class AppCam {
 
     public static boolean onActivityResult(int requestCode, int resultCode, Intent intent) {
         return getInstance().onActivityResult(requestCode, resultCode, intent);
+    }
+
+    static void setApplication(Application application) {
+        getInstance().setApplication(application);
     }
 }

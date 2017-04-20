@@ -21,8 +21,6 @@ public class SecondActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AppCam.attachActivity(this);
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

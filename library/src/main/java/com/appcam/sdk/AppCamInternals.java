@@ -12,6 +12,7 @@ import android.hardware.display.DisplayManager;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
 import android.util.DisplayMetrics;
@@ -67,27 +68,27 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
     private Application application;
 
+    private Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
+
 
     void init(Application application, String key, int videoQuality, boolean instantUpload) {
-        mediaRecorder = new MediaRecorder();
-        apiKey = key;
-        quality = videoQuality;
-        this.instantUpload = instantUpload;
-        this.application = application;
+//        apiKey = key;
+//        quality = videoQuality;
+//        this.instantUpload = instantUpload;
+//        this.application = application;
 
-        calculateSizes();
-        setupAppState();
-        checkForVideos();
 
-        hasInit = true;
+
 
     }
 
     private void checkForVideos() {
         File recordingDir = new File(application.getFilesDir() +  "/recordings/");
 
-        if(recordingDir.listFiles().length > 0) {
-            scheduleUploadJob();
+        if(recordingDir.exists()) {
+            if (recordingDir.listFiles().length > 0) {
+                scheduleUploadJob();
+            }
         }
     }
 
@@ -100,6 +101,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
         if(touchView != null) {
             ((ViewGroup)touchView.getParent()).removeView(touchView);
         }
+
 
         createTouchView(activity);
     }
@@ -121,8 +123,49 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
             @Override
             public void onAppDidEnterBackground() {
                 stop();
+                application.unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
             }
         });
+
+
+        activityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+                attachActivity(activity);
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        };
+
+        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
 
         appStateMonitor.start();
 
@@ -246,7 +289,10 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
     }
 
-     void startRecording(Activity activity) {
+     void startRecording(Activity activity, String apiKey, int quality) {
+
+         this.apiKey = apiKey;
+         this.quality = quality;
 
          if(application == null) {
 
@@ -261,11 +307,23 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
          }
 
          buildFileName();
-         attachActivity(activity);
 
         mediaProjectionManager = (MediaProjectionManager) activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         activity.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), 1);
 
+    }
+
+    void setApplication(Application application) {
+        this.application = application;
+
+        mediaRecorder = new MediaRecorder();
+
+        calculateSizes();
+        setupAppState();
+        checkForVideos();
+
+
+        hasInit = true;
     }
 
 

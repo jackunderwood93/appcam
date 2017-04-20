@@ -15,7 +15,7 @@ public class SampleApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        AppCam.init(this, "sNBS64ht6ePHDhnKKiGQHh8uLZ52", AppCam.QUALITY_MEDIUM, true);
+//        AppCam.init(this, "sNBS64ht6ePHDhnKKiGQHh8uLZ52", AppCam.QUALITY_MEDIUM, true);
 
     }
 }

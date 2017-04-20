@@ -8,10 +8,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.PersistableBundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,96 +74,70 @@ public class UploadIntentService extends JobService {
 
     public void uploadRecordings(Context context) {
 
-
-        HttpURLConnection conn = null;
-        DataOutputStream dos = null;
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****";
-        int bytesRead, bytesAvailable, bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1024 * 1024;
-
         File recordingFolder = new File(context.getFilesDir() + "/recordings/");
 
         Log.e(APP_CAM_LOG, "Found " + recordingFolder.listFiles().length + " videos to upload.");
         for (File sourceFile : recordingFolder.listFiles()) {
 
-            if (!sourceFile.isFile()) {
-
-
-            } else {
-                int serverResponseCode = 0;
-
                 try {
 
-                    // open a URL connection to the Servlet
-                    FileInputStream fileInputStream = new FileInputStream(sourceFile);
-                    URL url = new URL("http://159.203.140.238/uploads/upload.php");
+                    /* set the variable needed by http post */
+                    String actionUrl = "http://159.203.140.238:3000/upload";
+                    final String end = "\r\n";
+                    final String twoHyphens = "--";
+                    final String boundary = "*****++++++************++++++++++++";
 
-                    // Open a HTTP  connection to  the URL
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoInput(true); // Allow Inputs
-                    conn.setDoOutput(true); // Allow Outputs
-                    conn.setUseCaches(false); // Don't use a Cached Copy
+                    URL url = new URL(actionUrl);
+                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setUseCaches(false);
                     conn.setRequestMethod("POST");
+
+                    /* setRequestProperty */
                     conn.setRequestProperty("Connection", "Keep-Alive");
-                    conn.setRequestProperty("ENCTYPE", "multipart/form-data");
-                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                    conn.setRequestProperty("uploadedfile", sourceFile.getName());
+                    conn.setRequestProperty("Charset", "UTF-8");
+                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary="+ boundary);
 
-                    dos = new DataOutputStream(conn.getOutputStream());
+                    DataOutputStream ds = new DataOutputStream(conn.getOutputStream());
+                    ds.writeBytes(twoHyphens + boundary + end);
+                    ds.writeBytes("Content-Disposition: form-data; name=\"from\""+end+end+"auto"+end);
+                    ds.writeBytes(twoHyphens + boundary + end);
+                    ds.writeBytes("Content-Disposition: form-data; name=\"to\""+end+end+"ja"+end);
+                    ds.writeBytes(twoHyphens + boundary + end);
+                    ds.writeBytes("Content-Disposition: form-data; name=\"video\";filename=\"" + sourceFile.getName() +"\"" + end);
+                    ds.writeBytes(end);
 
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    dos.writeBytes("Content-Disposition: form-data; name='uploadedfile';filename='" + sourceFile.getName() + "'" + lineEnd);
+                    FileInputStream fStream = new FileInputStream(sourceFile);
+                    int bufferSize = 1024;
+                    byte[] buffer = new byte[bufferSize];
+                    int length = -1;
 
-                    dos.writeBytes(lineEnd);
-
-                    // create a buffer of  maximum size
-                    bytesAvailable = fileInputStream.available();
-
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    buffer = new byte[bufferSize];
-
-                    // read file and write it into form...
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    while (bytesRead > 0) {
-
-                        dos.write(buffer, 0, bufferSize);
-                        bytesAvailable = fileInputStream.available();
-                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
+                    while((length = fStream.read(buffer)) != -1) {
+                        ds.write(buffer, 0, length);
                     }
+                    ds.writeBytes(end);
+                    ds.writeBytes(twoHyphens + boundary + twoHyphens + end);
+                    /* close streams */
+                    fStream.close();
+                    ds.flush();
+                    ds.close();
 
-                    // send multipart form data necesssary after file data...
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                    // Responses from the server (code and message)
-                    serverResponseCode = conn.getResponseCode();
-
-
-                    if (serverResponseCode == 200) {
-                        Log.e(APP_CAM_LOG, "Successfully uploaded: " + sourceFile.getName());
+                    if(conn.getResponseCode() == 200){
                         sourceFile.delete();
-                    } else {
-                        Log.e(APP_CAM_LOG, "Server returned error: " + serverResponseCode + ". " + conn.getResponseMessage());
+
+                        Log.i(APP_CAM_LOG, "File uploaded");
                     }
-
-
-                    //close the streams //
-                    fileInputStream.close();
-                    dos.flush();
-                    dos.close();
 
                 } catch (Exception e) {
-                    Log.e(APP_CAM_LOG, "There was an error uploading: " + e.getMessage());
+                    Log.e(APP_CAM_LOG, "There was an error uploading:");
+
+                    e.printStackTrace();
                 }
             }
 
-        }
+
 
         if(recordingFolder.listFiles().length == 0) {
             JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
