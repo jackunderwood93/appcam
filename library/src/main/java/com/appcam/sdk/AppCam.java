@@ -29,20 +29,12 @@ public class AppCam {
         return appCam;
     }
 
-    public static void init(Application application, String key, int videoQuality, boolean instantUpload) {
-        getInstance().init(application, key, videoQuality, instantUpload);
-    }
-
     public static void startRecording(Activity activity, String apiKey, int quality) {
         getInstance().startRecording(activity, apiKey, quality);
     }
 
     public static void stopRecording() {
         getInstance().stop();
-    }
-
-    public static void attachActivity(Activity activity) {
-        getInstance().attachActivity(activity);
     }
 
     public static void dispatchTouchEvent(MotionEvent event) {

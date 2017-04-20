@@ -23,7 +23,16 @@ public class StartRecordingActivity extends Activity{
 
         setContentView(R.layout.record_request);
 
-        String appName = getResources().getString(getApplicationInfo().labelRes);
+        String appName;
+
+        PackageManager packageManagers= getApplicationContext().getPackageManager();
+        try {
+             appName = (String) packageManagers.getApplicationLabel(packageManagers.getApplicationInfo(getApplicationContext().getPackageName(), PackageManager.GET_META_DATA));
+        } catch (Exception e) {
+            appName = "A developer";
+        }
+
+
         ((TextView)findViewById(R.id.instructions_title)).setText(appName + " would like to record your next session.");
 
         Intent intent = getIntent();
@@ -66,6 +75,7 @@ public class StartRecordingActivity extends Activity{
         if(AppCam.onActivityResult(requestCode, resultCode, data)) {
             PackageManager pm = getPackageManager();
             Intent intent = pm.getLaunchIntentForPackage(getApplicationContext().getPackageName());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
 
 
