@@ -384,7 +384,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
          JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, new ComponentName(application, UploadIntentService.class));
          jobBuilder.setExtras(bundle);
          jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
-         jobBuilder.setRequiresCharging(true);
+         jobBuilder.setRequiresCharging(false);
 
          if(instantUpload) {
              jobBuilder.setOverrideDeadline(1000);
