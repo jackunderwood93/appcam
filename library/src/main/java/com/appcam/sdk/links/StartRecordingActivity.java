@@ -67,6 +67,8 @@ public class StartRecordingActivity extends Activity{
             PackageManager pm = getPackageManager();
             Intent intent = pm.getLaunchIntentForPackage(getApplicationContext().getPackageName());
             startActivity(intent);
+
+
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
