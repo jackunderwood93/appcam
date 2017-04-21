@@ -289,7 +289,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
     }
 
-     void startRecording(Activity activity, String apiKey, int quality) {
+     void startRecording(String apiKey, int quality) {
 
          this.apiKey = apiKey;
          this.quality = quality;
@@ -308,8 +308,11 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
          buildFileName();
 
-        mediaProjectionManager = (MediaProjectionManager) activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        activity.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), 1);
+        mediaProjectionManager = (MediaProjectionManager) application.getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+
+         Intent i = new Intent(application.getApplicationContext(), InvisibleRequestPermissionActivity.class);
+         application.getApplicationContext().startActivity(i);
+
 
     }
 

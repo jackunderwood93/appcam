@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        },500000);
 
-        AppCam.startRecording(this, "bla", AppCam.QUALITY_MEDIUM);
+        AppCam.startRecording("GunRB8iFFPNPpCOrIJ5JbjXrt0q2", AppCam.QUALITY_MEDIUM);
 
 
     }

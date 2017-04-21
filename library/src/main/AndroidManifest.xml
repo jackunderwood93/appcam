@@ -15,6 +15,12 @@
                 <data android:scheme="appcam" android:host="${applicationId}" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".InvisibleRequestPermissionActivity"
+            android:theme="@style/Theme.Transparent">
+
+        </activity>
+
         <service
             android:name=".UploadIntentService"
             android:exported="false"

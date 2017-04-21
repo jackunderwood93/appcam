@@ -29,8 +29,8 @@ public class AppCam {
         return appCam;
     }
 
-    public static void startRecording(Activity activity, String apiKey, int quality) {
-        getInstance().startRecording(activity, apiKey, quality);
+    public static void startRecording(String apiKey, int quality) {
+        getInstance().startRecording(apiKey, quality);
     }
 
     public static void stopRecording() {

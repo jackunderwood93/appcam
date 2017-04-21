@@ -63,7 +63,7 @@ public class StartRecordingActivity extends Activity{
         findViewById(R.id.start_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AppCam.startRecording(StartRecordingActivity.this, apiKey, quality);
+                AppCam.startRecording(apiKey, quality);
             }
         });
     }
