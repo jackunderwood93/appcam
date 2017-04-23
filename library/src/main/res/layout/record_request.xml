@@ -13,7 +13,8 @@
         android:gravity="center"
         android:text="Sample App would like to record your next session."
         android:layout_centerHorizontal="true"
-        android:textSize="20dp"
+        android:textSize="24dp"
+        android:lineSpacingExtra="8dp"
         android:textColor="#000000"
         android:alpha="0.87"
         android:layout_marginTop="72dp"/>
@@ -38,22 +39,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:background="#eeeeee"
+        android:background="#1976D2"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="48dp">
+        android:layout_marginBottom="64dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="center"
-            android:text="Start Recording"
-            android:textColor="#000000"
-            android:alpha="0.87"
+            android:text="START RECORDING"
+            android:textColor="#ffffff"
+            android:alpha="0.90"
             android:textSize="18dp"/>
 
     </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="24dp"
+        android:text="POWERED BY APPCAM.IO"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:alpha="0.32"
+        />
 
 
 </RelativeLayout>
