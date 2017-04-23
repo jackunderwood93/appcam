@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.MainThread;
-import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 
 import com.appcam.sdk.AppCam;
+
+import org.jetbrains.annotations.Nullable;
 
 
 /**

@@ -16,7 +16,7 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 1
+        minSdkVersion 4
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -30,4 +30,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
+}
+
+repositories {
+    jcenter();
+}
+
+
+
+dependencies {
+    compile 'org.jetbrains:annotations-java5:15.0'
 }

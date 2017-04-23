@@ -12,6 +12,7 @@ import android.hardware.display.DisplayManager;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
@@ -123,7 +124,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
             @Override
             public void onAppDidEnterBackground() {
                 stop();
-                application.unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
+//                application.unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
             }
         });
 
@@ -294,6 +295,13 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
          this.apiKey = apiKey;
          this.quality = quality;
 
+         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+
+             Log.e(APP_CAM_LOG, "Requires at least Android Lollipop.");
+
+             return;
+         }
+
          if(application == null) {
 
              Log.e(APP_CAM_LOG, "Tried to start recording before AppCamProvider.init() is called.");
@@ -308,7 +316,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
          buildFileName();
 
-        mediaProjectionManager = (MediaProjectionManager) application.getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            mediaProjectionManager = (MediaProjectionManager) application.getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
          Intent i = new Intent(application.getApplicationContext(), InvisibleRequestPermissionActivity.class);
          application.getApplicationContext().startActivity(i);
@@ -353,10 +361,6 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
              return;
          }
 
-        if(hasStopped) {
-            return;
-        }
-
         try {
             if (mediaRecorder != null) {
                 mediaRecorder.stop();
@@ -375,8 +379,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
         scheduleUploadJob();
 
-
-
+         isRecording = false;
 
      }
 

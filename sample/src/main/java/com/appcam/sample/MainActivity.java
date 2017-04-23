@@ -1,15 +1,16 @@
 package com.appcam.sample;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.Debug;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
 import com.appcam.sdk.AppCam;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,16 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        },500000);
 
-        AppCam.startRecording("GunRB8iFFPNPpCOrIJ5JbjXrt0q2", AppCam.QUALITY_MEDIUM);
+//        AppCam.startRecording("GunRB8iFFPNPpCOrIJ5JbjXrt0q2", AppCam.QUALITY_MEDIUM);
+
+        Debug.startMethodTracing();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Debug.stopMethodTracing();
+            }
+        }, 5000);
 
 
     }

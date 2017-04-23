@@ -6,18 +6,29 @@ import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.PersistableBundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.appcam.sdk.tus.TusClient;
+import com.appcam.sdk.tus.TusExecutor;
+import com.appcam.sdk.tus.TusURLMemoryStore;
+import com.appcam.sdk.tus.TusUpload;
+import com.appcam.sdk.tus.TusUploader;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.appcam.sdk.AppCamInternals.APP_CAM_LOG;
 import static com.appcam.sdk.AppCamInternals.JOB_ID;
@@ -76,73 +87,80 @@ public class UploadIntentService extends JobService {
 
         File recordingFolder = new File(context.getFilesDir() + "/recordings/");
 
-        Log.e(APP_CAM_LOG, "Found " + recordingFolder.listFiles().length + " videos to upload.");
-        for (File sourceFile : recordingFolder.listFiles()) {
+        Log.i(APP_CAM_LOG, "Found " + recordingFolder.listFiles().length + " videos to upload.");
+
+
+        for (final File file : recordingFolder.listFiles()) {
 
                 try {
 
-                    /* set the variable needed by http post */
-                    String actionUrl = "http://159.203.140.238:3000/upload";
-                    final String end = "\r\n";
-                    final String twoHyphens = "--";
-                    final String boundary = "*****++++++************++++++++++++";
+                    // Create a new  instance
+                    final TusClient client = new TusClient();
 
-                    URL url = new URL(actionUrl);
-                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                    HashMap map = new HashMap();
+                    map.put("Content-Type", "application/offset+octet-stream");
 
-                    conn.setDoInput(true);
-                    conn.setDoOutput(true);
-                    conn.setUseCaches(false);
-                    conn.setRequestMethod("POST");
+                    client.setHeaders(map);
 
-                    /* setRequestProperty */
-                    conn.setRequestProperty("Connection", "Keep-Alive");
-                    conn.setRequestProperty("Charset", "UTF-8");
-                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary="+ boundary);
+                    client.setUploadCreationURL(new URL("http://159.203.140.238/" + file.getName()));
 
-                    DataOutputStream ds = new DataOutputStream(conn.getOutputStream());
-                    ds.writeBytes(twoHyphens + boundary + end);
-                    ds.writeBytes("Content-Disposition: form-data; name=\"from\""+end+end+"auto"+end);
-                    ds.writeBytes(twoHyphens + boundary + end);
-                    ds.writeBytes("Content-Disposition: form-data; name=\"to\""+end+end+"ja"+end);
-                    ds.writeBytes(twoHyphens + boundary + end);
-                    ds.writeBytes("Content-Disposition: form-data; name=\"video\";filename=\"" + sourceFile.getName() +"\"" + end);
-                    ds.writeBytes(end);
+                    client.enableResuming(new TusURLMemoryStore());
 
-                    FileInputStream fStream = new FileInputStream(sourceFile);
-                    int bufferSize = 1024;
-                    byte[] buffer = new byte[bufferSize];
-                    int length = -1;
 
-                    while((length = fStream.read(buffer)) != -1) {
-                        ds.write(buffer, 0, length);
-                    }
-                    ds.writeBytes(end);
-                    ds.writeBytes(twoHyphens + boundary + twoHyphens + end);
-                    /* close streams */
-                    fStream.close();
-                    ds.flush();
-                    ds.close();
+                    final TusUpload upload = new TusUpload(file);
 
-                    if(conn.getResponseCode() == 200){
-                        sourceFile.delete();
+                    System.out.println("Starting upload...");
 
-                        Log.i(APP_CAM_LOG, "File uploaded");
-                    }
+
+                    final TusExecutor executor = new TusExecutor() {
+                        @Override
+                        protected void makeAttempt() throws ProtocolException, IOException {
+
+                            try {
+                                TusUploader uploader = client.resumeOrCreateUpload(upload);
+
+                                // Upload the file in chunks of 1KB sizes.
+                                uploader.setChunkSize(1024 * 256);
+
+
+                                // Upload the file as long as data is available. Once the
+                                // file has been fully uploaded the method will return -1
+                                do {
+                                    // Calculate the progress using the total size of the uploading file and
+                                    // the current offset.
+                                    long totalBytes = upload.getSize();
+                                    long bytesUploaded = uploader.getOffset();
+                                    double progress = (double) bytesUploaded / totalBytes * 100;
+
+                                    System.out.printf("Upload at %02.2f%%.\n", progress);
+                                } while (uploader.uploadChunk() > -1);
+
+                                // Allow the HTTP connection to be closed and cleaned up
+                                uploader.finish();
+
+                                System.out.println("Upload finished.");
+
+                                file.delete();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+
+                    executor.makeAttempts();
 
                 } catch (Exception e) {
-                    Log.e(APP_CAM_LOG, "There was an error uploading:");
-
                     e.printStackTrace();
                 }
             }
 
 
 
-        if(recordingFolder.listFiles().length == 0) {
-            JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            jobScheduler.cancel(JOB_ID);
-        }
+            if (recordingFolder.listFiles().length == 0) {
+                JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                jobScheduler.cancel(JOB_ID);
+            }
+
 
 
     }
