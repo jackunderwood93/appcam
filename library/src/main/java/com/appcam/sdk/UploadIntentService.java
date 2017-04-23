@@ -109,8 +109,6 @@ public class UploadIntentService extends JobService {
 
                     final TusUpload upload = new TusUpload(file);
 
-                    System.out.println("Starting upload...");
-
 
                     final TusExecutor executor = new TusExecutor() {
                         @Override
@@ -132,13 +130,13 @@ public class UploadIntentService extends JobService {
                                     long bytesUploaded = uploader.getOffset();
                                     double progress = (double) bytesUploaded / totalBytes * 100;
 
-                                    System.out.printf("Upload at %02.2f%%.\n", progress);
+                                   Log.i(APP_CAM_LOG, String.format("Upload at %02.2f%%.\n", progress));
                                 } while (uploader.uploadChunk() > -1);
 
                                 // Allow the HTTP connection to be closed and cleaned up
                                 uploader.finish();
 
-                                System.out.println("Upload finished.");
+                                Log.i(APP_CAM_LOG, "Upload finished.");
 
                                 file.delete();
                             } catch (Exception e) {
@@ -150,7 +148,8 @@ public class UploadIntentService extends JobService {
                     executor.makeAttempts();
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(APP_CAM_LOG, "Upload failed.", e);
+
                 }
             }
 
