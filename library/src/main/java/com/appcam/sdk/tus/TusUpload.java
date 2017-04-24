@@ -1,6 +1,5 @@
 package com.appcam.sdk.tus;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +34,7 @@ public class TusUpload {
      * @param file The file whose content should be later uploaded.
      * @throws FileNotFoundException Thrown if the file cannot be found.
      */
-    public TusUpload(@NotNull File file) throws FileNotFoundException {
+    public TusUpload( File file) throws FileNotFoundException {
         size = file.length();
         setInputStream(new FileInputStream(file));
 

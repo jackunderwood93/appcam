@@ -1,8 +1,6 @@
 package com.appcam.sdk.tus;
 
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -58,7 +56,7 @@ public class TusClient {
      *
      * @param urlStore Storage used to save and retrieve upload URLs by its fingerprint.
      */
-    public void enableResuming(@NotNull TusURLStore urlStore) {
+    public void enableResuming(TusURLStore urlStore) {
         resumingEnabled = true;
         this.urlStore = urlStore;
     }
@@ -95,7 +93,7 @@ public class TusClient {
      *
      * @param headers The map of HTTP headers
      */
-    public void setHeaders(@Nullable Map<String, String> headers) {
+    public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
 
@@ -108,7 +106,6 @@ public class TusClient {
      *
      * @return The map of configured HTTP headers
      */
-    @Nullable
     public Map<String, String> getHeaders() {
         return headers;
     }
@@ -134,7 +131,7 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
+    public TusUploader createUpload(TusUpload upload) throws ProtocolException, IOException {
         HttpURLConnection connection = (HttpURLConnection) uploadCreationURL.openConnection();
         connection.setRequestMethod("POST");
         prepareConnection(connection);
@@ -186,7 +183,7 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader resumeUpload(@NotNull TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
+    public TusUploader resumeUpload( TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
         if(!resumingEnabled) {
             throw new ResumingNotEnabledException();
         }
@@ -226,7 +223,7 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader resumeOrCreateUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
+    public TusUploader resumeOrCreateUpload( TusUpload upload) throws ProtocolException, IOException {
         try {
             return resumeUpload(upload);
         } catch(FingerprintNotFoundException e) {
@@ -251,7 +248,7 @@ public class TusClient {
      *
      * @param connection The connection whose headers will be modified.
      */
-    public void prepareConnection(@NotNull HttpURLConnection connection) {
+    public void prepareConnection( HttpURLConnection connection) {
         // Only follow redirects, if the POST methods is preserved. If http.strictPostRedirect is
         // disabled, a POST request will be transformed into a GET request which is not wanted by us.
         // See: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7u40-b43/sun/net/www/protocol/http/HttpURLConnection.java#2372
