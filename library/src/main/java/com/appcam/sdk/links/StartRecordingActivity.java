@@ -23,7 +23,7 @@ public class StartRecordingActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.record_request);
+        setContentView(R.layout.appcam_record_request);
 
         String appName;
 

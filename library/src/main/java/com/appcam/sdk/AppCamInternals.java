@@ -232,7 +232,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
         ViewGroup viewGroup = (ViewGroup) activity.findViewById(android.R.id.content).getRootView();
         touchView = new ImageView(activity);
         touchView.setLayoutParams(new FrameLayout.LayoutParams(touchSize, touchSize));
-        touchView.setImageResource(R.drawable.oval);
+        touchView.setImageResource(R.drawable.appcam_oval);
         touchView.setAlpha(0f);
         viewGroup.addView(touchView);
 
@@ -319,6 +319,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
             mediaProjectionManager = (MediaProjectionManager) application.getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
          Intent i = new Intent(application.getApplicationContext(), InvisibleRequestPermissionActivity.class);
+         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
          application.getApplicationContext().startActivity(i);
 
 
