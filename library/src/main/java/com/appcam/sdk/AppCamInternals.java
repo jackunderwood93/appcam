@@ -203,22 +203,6 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
         videoHeight = (int) (deviceHeight / ratio);
     }
 
-    private void buildFileName() {
-
-        if(application == null) {
-            return;
-        }
-
-        String versionName = "Unknown";
-
-        try {
-            versionName = application.getApplicationContext().getPackageManager().getPackageInfo(application.getPackageName(), 0).versionName;
-        } catch (Exception e) {
-
-        }
-
-        fileLocation = application.getFilesDir() +  "/recordings/" + apiKey + "-" + android.os.Build.MODEL + "-" + versionName + "-" + System.currentTimeMillis() + ".mp4";
-    }
 
     private void createTouchView(Activity activity) {
 
@@ -249,9 +233,6 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
         final String directory = application.getFilesDir() + "/recordings/";
 
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return;
-        }
 
         final File folder = new File(directory);
 
@@ -290,39 +271,42 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
     }
 
-     void startRecording(String apiKey, int quality) {
+    void startRecording(String apiKey, File file) {
 
-         this.apiKey = apiKey;
-         this.quality = quality;
+        this.apiKey = apiKey;
+        this.quality = QUALITY_MEDIUM;
 
-         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 
-             Log.e(APP_CAM_LOG, "Requires at least Android Lollipop.");
+            Log.e(APP_CAM_LOG, "Requires at least Android Lollipop.");
 
-             return;
-         }
+            return;
+        }
 
-         if(application == null) {
+        if(application == null) {
 
-             Log.e(APP_CAM_LOG, "Tried to start recording before AppCamProvider.init() is called.");
+            Log.e(APP_CAM_LOG, "Tried to start recording before AppCamProvider.init() is called.");
 
-             return;
-         }
+            return;
+        }
 
-         if(isRecording) {
-             Log.e(APP_CAM_LOG, "AppCam is already recording.");
-             return;
-         }
+        if(isRecording) {
+            Log.e(APP_CAM_LOG, "AppCam is already recording.");
+            return;
+        }
 
-         buildFileName();
+        fileLocation = file.getAbsolutePath();
 
-            mediaProjectionManager = (MediaProjectionManager) application.getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mediaProjectionManager = (MediaProjectionManager) application.getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
-         Intent i = new Intent(application.getApplicationContext(), InvisibleRequestPermissionActivity.class);
-         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-         application.getApplicationContext().startActivity(i);
+        Intent i = new Intent(application.getApplicationContext(), InvisibleRequestPermissionActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        application.getApplicationContext().startActivity(i);
 
+    }
 
+     void startRecording(String apiKey) {
+         startRecording(apiKey, new File(application.getFilesDir() +  "/recordings/" + System.currentTimeMillis() + ".mp4"));
     }
 
     void setApplication(Application application) {
@@ -380,6 +364,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
         scheduleUploadJob();
 
+         touchView = null;
          isRecording = false;
 
      }

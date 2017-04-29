@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 
 import com.appcam.sdk.AppCam;
 
+import java.util.ArrayList;
 
 
 /**
@@ -16,25 +17,19 @@ import com.appcam.sdk.AppCam;
 
 public class SecondActivity extends Activity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent i = new Intent(SecondActivity.this, MainActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(i);
-            }
-        }, 5000);
+
+
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
 
         AppCam.dispatchTouchEvent(ev);
-
         return super.dispatchTouchEvent(ev);
     }
 }

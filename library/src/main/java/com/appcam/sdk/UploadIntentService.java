@@ -8,6 +8,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,7 +30,10 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.prefs.Preferences;
 
 import static com.appcam.sdk.AppCamInternals.APP_CAM_LOG;
 import static com.appcam.sdk.AppCamInternals.JOB_ID;
@@ -99,6 +104,7 @@ public class UploadIntentService extends JobService {
 
                     HashMap map = new HashMap();
                     map.put("Content-Type", "application/offset+octet-stream");
+                    map.put("Upload-Metadata", getFileMetaData(file));
 
                     client.setHeaders(map);
 
@@ -165,4 +171,8 @@ public class UploadIntentService extends JobService {
     }
 
 
+    private String getFileMetaData(File file) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return preferences.getString("appcam_" + file.getName(), "");
+    }
 }

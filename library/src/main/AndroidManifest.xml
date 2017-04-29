@@ -6,7 +6,7 @@
 
     <application>
 
-        <activity android:name=".links.StartRecordingActivity">
+        <activity android:name=".StartRecordingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.view.MotionEvent;
 
+import java.io.File;
+
 /**
  * Created by jackunderwood on 18/04/2017.
  */
@@ -29,8 +31,12 @@ public class AppCam {
         return appCam;
     }
 
-    public static void startRecording(String apiKey, int quality) {
-        getInstance().startRecording(apiKey, quality);
+    public static void startRecording(String apiKey) {
+       getInstance().startRecording(apiKey);
+    }
+
+     static void startRecording(String apiKey, File file) {
+        getInstance().startRecording(apiKey, file);
     }
 
     public static void stopRecording() {
