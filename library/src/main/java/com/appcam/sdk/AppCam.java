@@ -35,8 +35,8 @@ public class AppCam {
        getInstance().startRecording(apiKey);
     }
 
-     static void startRecording(String apiKey, File file) {
-        getInstance().startRecording(apiKey, file);
+     static void prepareRecording(File file) {
+        getInstance().prepareRecording(file);
     }
 
     public static void stopRecording() {

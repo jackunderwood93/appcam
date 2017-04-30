@@ -12,6 +12,7 @@ import android.hardware.display.DisplayManager;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,7 +49,7 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
     private  MediaProjection mediaProjection;
     private  String apiKey;
     private  String fileLocation;
-    private  int quality;
+    private  int quality = QUALITY_MEDIUM;
 
     private boolean hasStopped = false;
 
@@ -271,42 +272,19 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
     }
 
-    void startRecording(String apiKey, File file) {
-
-        this.apiKey = apiKey;
-        this.quality = QUALITY_MEDIUM;
-
-        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-
-            Log.e(APP_CAM_LOG, "Requires at least Android Lollipop.");
-
-            return;
-        }
-
-        if(application == null) {
-
-            Log.e(APP_CAM_LOG, "Tried to start recording before AppCamProvider.init() is called.");
-
-            return;
-        }
-
-        if(isRecording) {
-            Log.e(APP_CAM_LOG, "AppCam is already recording.");
-            return;
-        }
+    void prepareRecording(File file) {
 
         fileLocation = file.getAbsolutePath();
-
         mediaProjectionManager = (MediaProjectionManager) application.getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-
-        Intent i = new Intent(application.getApplicationContext(), InvisibleRequestPermissionActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        application.getApplicationContext().startActivity(i);
 
     }
 
      void startRecording(String apiKey) {
-         startRecording(apiKey, new File(application.getFilesDir() +  "/recordings/" + System.currentTimeMillis() + ".mp4"));
+
+         Intent i = new Intent(application, StartRecordingActivity.class);
+         i.setData(Uri.parse("?key=" + apiKey));
+         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+         application.startActivity(i);
     }
 
     void setApplication(Application application) {
@@ -326,6 +304,10 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
      boolean onActivityResult(int requestCode, int resultCode, Intent data) {
 
          if(application == null) {
+             return false;
+         }
+
+         if(fileLocation == null) {
              return false;
          }
 

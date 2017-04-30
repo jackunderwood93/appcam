@@ -22,17 +22,14 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppCam.startRecording("blabla");
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AppCam.startRecording("078DUjQqYdQRr4ShFZNDakKQjfh1");
+            }
+        }, 10000);
 
 
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if(!AppCam.onActivityResult(requestCode, resultCode, data)) {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     @Override
