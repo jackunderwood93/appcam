@@ -1,11 +1,15 @@
 package com.appcam.sdk;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
@@ -164,10 +168,35 @@ public class UploadIntentService extends JobService {
             if (recordingFolder.listFiles().length == 0) {
                 JobScheduler jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
                 jobScheduler.cancel(JOB_ID);
+
+                showFinishedNotification();
             }
 
 
 
+    }
+
+    private void showFinishedNotification() {
+        Notification.Builder mBuilder = new Notification.Builder(getApplicationContext());
+
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        new Intent(),
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentTitle("Recordings Uploaded");
+        mBuilder.setContentText("All recordings have been successfully uploaded.");
+        mBuilder.setSmallIcon(R.drawable.appcam_oval);
+        mBuilder.setAutoCancel(true);
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        int mNotificationId = 001;
+        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
 

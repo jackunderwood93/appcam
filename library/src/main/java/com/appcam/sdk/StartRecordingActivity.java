@@ -22,6 +22,7 @@ import com.appcam.sdk.BuildConfig;
 import com.appcam.sdk.R;
 
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -71,6 +72,14 @@ public class StartRecordingActivity extends Activity {
             ((TextView)findViewById(R.id.instructions_description)).setText("Unfortunately, this requires at least Android 5.0.");
             findViewById(R.id.start_button).setVisibility(View.GONE);
         }
+
+
+        findViewById(R.id.powered_by_appcam).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://appcam.io")));
+            }
+        });
     }
 
     private String getBase64String(String string) {

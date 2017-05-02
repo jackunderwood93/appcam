@@ -4,9 +4,13 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.BroadcastReceiver;
+import android.content.ComponentCallbacks2;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.media.MediaRecorder;
@@ -27,12 +31,11 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.appcam.sdk.appstate.AppStateListener;
-import com.appcam.sdk.appstate.AppStateMonitor;
 
 import java.io.File;
 import java.io.IOException;
 
+import static android.content.Intent.ACTION_SCREEN_OFF;
 import static com.appcam.sdk.AppCam.QUALITY_LOW;
 import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
@@ -70,19 +73,6 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
 
     private Application application;
 
-    private Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
-
-
-    void init(Application application, String key, int videoQuality, boolean instantUpload) {
-//        apiKey = key;
-//        quality = videoQuality;
-//        this.instantUpload = instantUpload;
-//        this.application = application;
-
-
-
-
-    }
 
     private void checkForVideos() {
         File recordingDir = new File(application.getFilesDir() +  "/recordings/");
@@ -109,69 +99,6 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
     }
 
 
-    private void setupAppState() {
-
-        if(application == null) {
-            return;
-        }
-
-        AppStateMonitor appStateMonitor = AppStateMonitor.create(application);
-        appStateMonitor.addListener(new AppStateListener() {
-            @Override
-            public void onAppDidEnterForeground() {
-
-            }
-
-            @Override
-            public void onAppDidEnterBackground() {
-                stop();
-//                application.unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
-            }
-        });
-
-
-        activityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
-            }
-
-            @Override
-            public void onActivityStarted(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityResumed(Activity activity) {
-                attachActivity(activity);
-            }
-
-            @Override
-            public void onActivityPaused(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityStopped(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-
-            }
-
-            @Override
-            public void onActivityDestroyed(Activity activity) {
-
-            }
-        };
-
-        application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
-
-        appStateMonitor.start();
-
-    }
 
     private void calculateSizes() {
 
@@ -285,6 +212,8 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
          i.setData(Uri.parse("?key=" + apiKey));
          i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
          application.startActivity(i);
+
+
     }
 
     void setApplication(Application application) {
@@ -293,7 +222,6 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
         mediaRecorder = new MediaRecorder();
 
         calculateSizes();
-        setupAppState();
         checkForVideos();
 
 
@@ -311,15 +239,32 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
              return false;
          }
 
+         if(isRecording == true) {
+             return false;
+         }
+
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
 
         if(mediaProjection != null) {
             setupMediaProjection();
+            registerCallbacks();
             isRecording = true;
             return true;
         } else {
             return false;
         }
+    }
+
+    private void registerCallbacks() {
+        application.registerActivityLifecycleCallbacks(lifecycleCallbacks);
+        application.registerComponentCallbacks(componentCallbacks);
+        application.registerReceiver(screenOffBroadcastReciever, new IntentFilter(ACTION_SCREEN_OFF));
+    }
+
+    private void unregisterCallbacks() {
+        application.unregisterActivityLifecycleCallbacks(lifecycleCallbacks);
+        application.unregisterComponentCallbacks(componentCallbacks);
+        application.unregisterReceiver(screenOffBroadcastReciever);
     }
 
      void stop() {
@@ -345,6 +290,8 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
         }
 
         scheduleUploadJob();
+
+         unregisterCallbacks();
 
          touchView = null;
          isRecording = false;
@@ -396,5 +343,69 @@ import static com.appcam.sdk.AppCam.QUALITY_MEDIUM;
         touchView.animate().alpha(0f).setDuration(200).setStartDelay(0).setInterpolator(interpolator);
 
     }
+
+    private ComponentCallbacks2 componentCallbacks = new ComponentCallbacks2() {
+        @Override
+        public void onTrimMemory(int level) {
+            if(level >= TRIM_MEMORY_UI_HIDDEN) {
+                stop();
+            }
+        }
+
+        @Override
+        public void onConfigurationChanged(Configuration newConfig) {
+
+        }
+
+        @Override
+        public void onLowMemory() {
+
+        }
+    };
+
+    private BroadcastReceiver screenOffBroadcastReciever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            stop();
+        }
+    };
+
+    private Application.ActivityLifecycleCallbacks lifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
+        @Override
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+            attachActivity(activity);
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+        }
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+
+        }
+    };
+
 
 }

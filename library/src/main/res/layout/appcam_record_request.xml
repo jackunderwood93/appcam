@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="32dp"
     android:paddingRight="32dp"
@@ -11,11 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:gravity="center"
+        android:gravity="left"
         android:text="Sample App would like to record your next session."
         android:layout_centerHorizontal="true"
         android:textSize="24dp"
-        android:lineSpacingExtra="8dp"
         android:textColor="#000000"
         android:alpha="0.87"
         android:layout_marginTop="72dp"/>
@@ -25,47 +26,59 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:gravity="center"
-        android:text="The video will stop recording when you leave the app and will be automatically uploaded the next time you connect to WiFi."
+        android:gravity="left"
+        android:text="The recording will stop when you leave the app and will be automatically uploaded the next time you connect to WiFi.\n\nYou will get a notification when the upload has completed."
         android:layout_marginBottom="16dp"
         android:layout_centerHorizontal="true"
         android:textColor="#000000"
         android:textSize="16dp"
         android:layout_below="@id/instructions_title"
-        android:layout_marginTop="56dp"
-        android:alpha="0.57"/>
+        android:layout_marginTop="32dp"
+        android:alpha="0.87"/>
 
     <FrameLayout
         android:id="@+id/start_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="#1976D2"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="64dp">
+        android:layout_marginBottom="0dp"
+        android:layout_above="@+id/powered_by_appcam"
+        >
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:gravity="center"
             android:text="START RECORDING"
+            android:background="#2196F3"
+            android:foreground="?android:selectableItemBackground"
             android:textColor="#ffffff"
             android:alpha="0.90"
-            android:textSize="18dp"/>
+            android:textSize="14dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:elevation="6dp"
+            />
 
     </FrameLayout>
 
     <TextView
+        android:id="@+id/powered_by_appcam"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="24dp"
         android:text="POWERED BY APPCAM.IO"
         android:gravity="center"
         android:textColor="#000000"
-        android:alpha="0.32"
+        android:alpha="0.54"
+        android:textSize="12dp"
+        android:paddingBottom="24dp"
+        android:paddingTop="8dp"
+
         />
 
 

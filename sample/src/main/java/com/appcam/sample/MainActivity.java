@@ -6,6 +6,8 @@ import android.os.Debug;
 import android.os.Handler;
 import android.os.Bundle;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import com.appcam.sdk.AppCam;
 
@@ -14,21 +16,21 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
-    ArrayList<String> bla = new ArrayList<>();
 
+    private FrameLayout recordingButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        new Handler().postDelayed(new Runnable() {
+
+        findViewById(R.id.recording_button).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
+            public void onClick(View v) {
                 AppCam.startRecording("078DUjQqYdQRr4ShFZNDakKQjfh1");
             }
-        }, 10000);
-
+        });
 
     }
 
